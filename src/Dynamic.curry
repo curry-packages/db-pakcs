@@ -9,7 +9,7 @@
 ---
 --- A dynamic predicate <code>p</code> with arguments of type
 --- <code>t1,...,tn</code> must be declared by:
---- 
+---
 --- <code>p :: t1 -> ... -> tn -> Dynamic</code><br/>
 --- <code>p = dynamic</code>
 ---
@@ -35,6 +35,7 @@ module Dynamic(Dynamic,(<>),(|>),(|&>),dynamic,persistent,
                transaction,transactionWithErrorCatch,abortTransaction) where
 
 import AllSolutions
+import Data.Maybe
 
 infixr 2 <>
 infixl 1 |>, |&>
@@ -130,7 +131,7 @@ isKnown :: Dynamic -> IO Bool
 isKnown (Dynamic spec) = do
   known <- getDynamicKnowledge
   first <- getOneSolution (\_ -> known (Dynamic spec))
-  return (first /= Nothing)
+  return (isJust first)
 isKnown (Prod d1 d2) = do
   b1 <- isKnown d1
   b2 <- isKnown d2

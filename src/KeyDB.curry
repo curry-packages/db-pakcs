@@ -17,14 +17,13 @@ module KeyDB(existsDBKey,allDBKeys,getDBInfo,getDBInfos,
              index,sortByIndex,groupByIndex) where
 
 import Dynamic
-import Integer(maxlist)
 import Sort
-import List
+import Data.List
 
 --- Exists an entry with a given key in the database?
 --- @param db - the database (a dynamic predicate)
 --- @param key - a key (an integer)
-existsDBKey :: (Int -> _ -> Dynamic) -> Int -> IO Bool
+existsDBKey :: Eq a => (Int -> a -> Dynamic) -> Int -> IO Bool
 existsDBKey db key = seq db $ seq key $ do
   entries <- getDynamicSolution (\info -> db key info)
   return (entries /= Nothing)
@@ -50,7 +49,7 @@ getDBInfo db key = seq db $ seq key $ do
 --- @param x - the entry searched for
 --- @param xs - the list to search in
 
-index :: a -> [a] -> Int
+index :: Eq a => a -> [a] -> Int
 index x xs = idx 0 xs
   where
     idx n (y:ys) = if x==y then n else idx (n+1) ys
@@ -58,16 +57,16 @@ index x xs = idx 0 xs
 
 --- Sorts a given list by associated index .
 sortByIndex :: [(Int,b)] -> [b]
-sortByIndex = map snd . mergeSortBy (\x y -> fst x < fst y) 
+sortByIndex = map snd . mergeSortBy (\x y -> fst x < fst y)
 
 --- Sorts a given list by associated index and group for identical index.
 --- Empty lists are added for missing indexes
 groupByIndex :: [(Int,b)] -> [[b]]
-groupByIndex = addEmptyIdxs 0 . groupBy     (\x y -> fst x == fst y) 
+groupByIndex = addEmptyIdxs 0 . groupBy     (\x y -> fst x == fst y)
                               . mergeSortBy (\x y -> fst x <  fst y)
   where
     addEmptyIdxs _ [] = []
-    addEmptyIdxs n (((m,x):xs):ys) = 
+    addEmptyIdxs n (((m,x):xs):ys) =
        if n==m then (x:map snd xs) : addEmptyIdxs (n+1) ys
                else []:addEmptyIdxs (n+1) (((m,x):xs):ys)
 
@@ -101,7 +100,7 @@ updateDBEntry db key info = do
 newDBKey :: (Int -> _ -> Dynamic) -> IO Int
 newDBKey db = do
   ids <- getDynamicSolutions (\i -> db i unknown)
-  return (if null ids then 1 else maxlist ids + 1)
+  return (if null ids then 1 else maximum ids + 1)
 
 --- Stores a new entry in the database and return the key of the new entry.
 --- @param db - the database (a dynamic predicate)

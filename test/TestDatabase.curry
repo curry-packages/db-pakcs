@@ -3,14 +3,14 @@
 ---
 --- To run all tests automatically by the currycheck tool, use the command:
 --- "currycheck testDatabase"
---- 
+---
 --- @author Michael Hanus
 --- @version June 2007
 ------------------------------------------------------------------------------
 
 import Database
-import Dynamic(Dynamic)
-import System(system)
+import Dynamic        (Dynamic)
+import System.Process (system)
 import Test.EasyCheck
 
 p :: Int -> Dynamic

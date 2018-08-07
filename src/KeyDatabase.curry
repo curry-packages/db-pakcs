@@ -19,10 +19,9 @@ module KeyDatabase(existsDBKey,allDBKeys,allDBInfos,allDBKeyInfos,
                    module Database) where
 
 import Database
-import Integer(maxlist)
 import Sort
-import List
-import Maybe(sequenceMaybe)
+import Data.List
+import Data.Maybe
 
 --- The type of a database key is an integer.
 type Key = Int
@@ -33,7 +32,7 @@ type KeyPred a = Key -> a -> Dynamic
 --- Exists an entry with a given key in the database?
 --- @param db - the database (a dynamic predicate)
 --- @param key - a key (an integer)
-existsDBKey :: KeyPred _ -> Key -> Query Bool
+existsDBKey :: Eq a => KeyPred a -> Key -> Query Bool
 existsDBKey db key = seq db $ seq key $
   transformQ (/=Nothing) (queryOne (db key))
 
@@ -60,7 +59,7 @@ getDBInfo db key = seq db $ seq key $ queryOne (\info -> db key info)
 --- @param x - the entry searched for
 --- @param xs - the list to search in
 
-index :: a -> [a] -> Int
+index :: Eq a => a -> [a] -> Int
 index x xs = idx 0 xs
   where
     idx n (y:ys) = if x==y then n else idx (n+1) ys
@@ -68,16 +67,16 @@ index x xs = idx 0 xs
 
 --- Sorts a given list by associated index .
 sortByIndex :: [(Int,b)] -> [b]
-sortByIndex = map snd . mergeSortBy (\x y -> fst x < fst y) 
+sortByIndex = map snd . mergeSortBy (\x y -> fst x < fst y)
 
 --- Sorts a given list by associated index and group for identical index.
 --- Empty lists are added for missing indexes
 groupByIndex :: [(Int,b)] -> [[b]]
-groupByIndex = addEmptyIdxs 0 . groupBy     (\x y -> fst x == fst y) 
+groupByIndex = addEmptyIdxs 0 . groupBy     (\x y -> fst x == fst y)
                               . mergeSortBy (\x y -> fst x <  fst y)
   where
     addEmptyIdxs _ [] = []
-    addEmptyIdxs n (((m,x):xs):ys) = 
+    addEmptyIdxs n (((m,x):xs):ys) =
        if n==m then (x:map snd xs) : addEmptyIdxs (n+1) ys
                else []:addEmptyIdxs (n+1) (((m,x):xs):ys)
 
@@ -89,7 +88,7 @@ getDBInfos db keys = seq db $ seq (normalForm keys) $
   transformQ sortByKeys
              (queryAll (\ (key,info) -> db key info |> key `elem` keys))
  where
-   sortByKeys keyinfos = sequenceMaybe (map (\k -> lookup k keyinfos) keys)
+   sortByKeys keyinfos = sequence (map (\k -> lookup k keyinfos) keys)
 
 --- Deletes an entry with a given key in the database.
 --- No error is raised if the given key does not exist.
@@ -111,7 +110,7 @@ deleteDBEntries db keys = seq db $ seq keys $ mapT_ (deleteDBEntry db) keys
 --- @param db - the database (a dynamic predicate)
 --- @param key - the key of the entry (an integer)
 --- @param info - the information to be stored in the updated entry
-updateDBEntry :: KeyPred a -> Key -> a -> Transaction ()
+updateDBEntry :: Eq a => KeyPred a -> Key -> a -> Transaction ()
 updateDBEntry db key info =
   getDB (existsDBKey db key) |>>= \b ->
   if b then deleteDBEntry db key |>> addDB (db key info)
@@ -120,8 +119,8 @@ updateDBEntry db key info =
 
 --- A query that returns a new database key.
 newDBKey :: KeyPred _ -> Query Key
-newDBKey db = 
-  transformQ (\ids -> if null ids then 1 else maxlist ids + 1)
+newDBKey db =
+  transformQ (\ids -> if null ids then 1 else maximum ids + 1)
              (queryAll (\i -> db i unknown))
 
 --- Stores a new entry in the database and return the key of the new entry.
@@ -136,7 +135,7 @@ newDBEntry db info =
 --- @param db - the database (a dynamic predicate)
 --- @param key - the key of the new entry (an integer)
 --- @param info - the information to be stored in the new entry
-newDBKeyEntry :: KeyPred a -> Key -> a -> Transaction ()
+newDBKeyEntry :: Eq a => KeyPred a -> Key -> a -> Transaction ()
 newDBKeyEntry db key info =
   getDB (existsDBKey db key) |>>= \b ->
   if b then errorT (TError DuplicateKeyError

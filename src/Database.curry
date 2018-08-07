@@ -11,7 +11,7 @@
 ---
 --- A dynamic predicate <code>p</code> with arguments of type
 --- <code>t1,...,tn</code> must be declared by:
---- 
+---
 --- <code>p :: t1 -> ... -> tn -> Dynamic</code><br/>
 --- <code>p = dynamic</code>
 ---
@@ -37,7 +37,7 @@ module Database(Dynamic,dynamic,persistent,(<>),(|&>),(|>),
  where
 
 import Dynamic
-import Global -- to store transaction errors
+import Data.Global -- to store transaction errors
 
 infixl 1 |>>, |>>=
 
@@ -89,6 +89,7 @@ runQ (QueryDB q) = q
 
 --- The type of errors that might occur during a transaction.
 data TError = TError TErrorKind String
+  deriving (Show, Eq)
 
 --- The various kinds of transaction errors.
 data TErrorKind = KeyNotExistsError
@@ -100,6 +101,7 @@ data TErrorKind = KeyNotExistsError
                 | MaxError
                 | UserDefinedError
                 | ExecutionError
+  deriving (Show, Eq)
 
 --- Transforms a transaction error into a string.
 showTError :: TError -> String
