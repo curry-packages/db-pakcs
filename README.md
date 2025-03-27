@@ -1,8 +1,8 @@
 db-pakcs: Support for persistent predicates
 ===========================================
 
-This package contains libraries to support persistent predicates.
-[This paper](http://www.informatik.uni-kiel.de/~mh/papers/JFLP04_dyn.html)
+This package contains libraries to support persistent predicates. The
+[JFLP'04 paper](http://danae.uni-muenster.de/lehre/kuchen/JFLP/articles/2004/S04-01/A2004-05/JFLP-A2004-05.pdf)
 contains a description of the basic ideas behind these libraries.
 
 Since these libraries use a simple internal file structure
