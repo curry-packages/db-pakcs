@@ -1,8 +1,7 @@
 ------------------------------------------------------------------------------
 --- Library for dynamic predicates.
---- <a href="http://www.informatik.uni-kiel.de/~mh/papers/JFLP04_dyn.html">
---- This paper</a> contains a description of the basic ideas
---- behind this library.
+--- [This paper](http://danae.uni-muenster.de/lehre/kuchen/JFLP/articles/2004/S04-01/A2004-05/JFLP-A2004-05.pdf)
+--- contains a description of the basic ideas behind this library.
 ---
 --- Currently, it is still experimental so that its interface might
 --- be slightly changed in the future.
@@ -10,15 +9,15 @@
 --- A dynamic predicate <code>p</code> with arguments of type
 --- <code>t1,...,tn</code> must be declared by:
 --- 
---- <code>p :: t1 -> ... -> tn -> Dynamic</code><br/>
---- <code>p = dynamic</code>
+---     p :: t1 -> ... -> tn -> Dynamic
+---     p = dynamic
 ---
 ---
 --- A dynamic predicate where all facts should be persistently stored
---- in the directory <code>DIR</code> must be declared by:
+--- in the directory `DIR` must be declared by:
 ---
---- <code>p :: t1 -> ... -> tn -> Dynamic</code><br/>
---- <code>p = persistent "file:DIR"</code>
+---     p :: t1 -> ... -> tn -> Dynamic
+---     p = persistent "file:DIR"
 ---
 --- Remark:
 --- This library has been revised to the library <code>Database</code>.
@@ -26,7 +25,6 @@
 ---
 --- @author Michael Hanus
 --- @version August 2011
---- @category database
 ------------------------------------------------------------------------------
 
 module Dynamic(Dynamic,(<>),(|>),(|&>),dynamic,persistent,
